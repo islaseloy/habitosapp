@@ -4,6 +4,55 @@
 @source '../../storage/framework/views/*.php';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+    
+    --color-habits-bg: #fbfaf6;
+    --color-habits-surface: #ffffff;
+    --color-habits-surface-soft: #f0f7f3;
+    --color-habits-ink: #25302a;
+    --color-habits-muted: #6f7b73;
+    --color-habits-line: #e6e3da;
+    --color-habits-green: #3a9b72;
+    --color-habits-green-dark: #257354;
+    --color-habits-teal: #4b9aaa;
+    --color-habits-yellow: #f4c95d;
+    --color-habits-red: #e77b68;
+    --color-habits-blue: #608bc4;
+    --color-habits-hover: #f7f6f0;
+    
+    --shadow-habits: 0 16px 36px rgba(71, 89, 78, 0.08);
+}
+
+.dark {
+    --color-habits-bg: #0a0f0c;
+    --color-habits-surface: #121815;
+    --color-habits-surface-soft: #1a231f;
+    --color-habits-ink: #edf2ee;
+    --color-habits-muted: #829288;
+    --color-habits-line: #222d27;
+    --color-habits-green: #48b888;
+    --color-habits-green-dark: #6de2b0;
+    --color-habits-teal: #5ab1c2;
+    --color-habits-yellow: #fad373;
+    --color-habits-red: #ef9181;
+    --color-habits-blue: #79a6de;
+    --color-habits-hover: #1b2621;
+    
+    --shadow-habits: 0 16px 36px rgba(0, 0, 0, 0.4);
+}
+
+body {
+    background-color: var(--color-habits-bg);
+    color: var(--color-habits-ink);
+    font-family: var(--font-sans);
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Smooth transitions for all cards, borders, and text when toggling dark mode */
+.bg-habits-surface,
+.bg-habits-surface-soft,
+.border-habits-line,
+.text-habits-ink,
+.text-habits-muted {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }

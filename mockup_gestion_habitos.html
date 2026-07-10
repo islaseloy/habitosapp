@@ -1,0 +1,1426 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mockup - Sistema de Gestion de Habitos</title>
+  <style>
+    :root {
+      --bg: #fbfaf6;
+      --surface: #ffffff;
+      --surface-soft: #f0f7f3;
+      --ink: #25302a;
+      --muted: #6f7b73;
+      --line: #e6e3da;
+      --green: #3a9b72;
+      --green-dark: #257354;
+      --teal: #4b9aaa;
+      --yellow: #f4c95d;
+      --red: #e77b68;
+      --blue: #608bc4;
+      --shadow: 0 16px 36px rgba(71, 89, 78, .10);
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.45;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    .app-shell {
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      z-index: 8;
+      min-height: 72px;
+      padding: 14px 28px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, .94);
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      backdrop-filter: blur(12px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 210px;
+    }
+
+    .brand-mark {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: #dff3e5;
+      color: var(--green-dark);
+      font-weight: 900;
+    }
+
+    .brand strong {
+      display: block;
+      font-size: 15px;
+    }
+
+    .brand span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .nav {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .nav a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 38px;
+      padding: 8px 11px;
+      border-radius: var(--radius);
+      color: #526058;
+      font-size: 14px;
+      font-weight: 750;
+    }
+
+    .nav a.active,
+    .nav a:hover {
+      background: #edf7f1;
+      color: var(--green-dark);
+    }
+
+    .nav-icon {
+      width: 20px;
+      text-align: center;
+      color: var(--green);
+    }
+
+    .plan-box {
+      width: 220px;
+      padding: 12px;
+      border: 1px solid #f0dfad;
+      border-radius: var(--radius);
+      background: #fff8e5;
+    }
+
+    .plan-box small {
+      display: block;
+      color: #8a6a18;
+      margin-bottom: 8px;
+    }
+
+    .progress {
+      height: 8px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #f1e4b6;
+      margin: 10px 0 12px;
+    }
+
+    .progress span {
+      display: block;
+      width: 80%;
+      height: 100%;
+      background: var(--yellow);
+    }
+
+    .main {
+      min-width: 0;
+    }
+
+    .topbar {
+      position: relative;
+      z-index: 4;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 32px;
+      border-bottom: 1px solid var(--line);
+      background: #fbfaf6;
+    }
+
+    .search {
+      width: min(420px, 100%);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--muted);
+    }
+
+    .search input {
+      width: 100%;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--ink);
+    }
+
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: max-content;
+    }
+
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: #dceee2;
+      color: var(--green-dark);
+      font-weight: 800;
+    }
+
+    .content {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+      padding: 28px 32px 56px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(320px, .95fr);
+      gap: 24px;
+      align-items: stretch;
+      margin-bottom: 20px;
+    }
+
+    .hero-copy {
+      padding: 30px;
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      background: linear-gradient(120deg, #ffffff 0%, #ffffff 48%, #eef8f2 100%);
+      color: var(--ink);
+      box-shadow: var(--shadow);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--green-dark);
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      max-width: 720px;
+      margin-bottom: 14px;
+      font-size: clamp(34px, 5vw, 58px);
+      line-height: 1.03;
+      letter-spacing: 0;
+    }
+
+    .hero-copy p {
+      max-width: 620px;
+      margin-bottom: 24px;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .btn {
+      min-height: 40px;
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      padding: 9px 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: default;
+      font-weight: 750;
+      white-space: nowrap;
+    }
+
+    .btn.primary {
+      background: var(--green);
+      color: #ffffff;
+    }
+
+    .btn.dark {
+      background: #25302a;
+      color: #ffffff;
+    }
+
+    .btn.light {
+      background: #e4f5ea;
+      color: #1d5e43;
+    }
+
+    .btn.ghost {
+      border-color: var(--line);
+      background: var(--surface);
+      color: var(--ink);
+    }
+
+    .phone-preview {
+      position: relative;
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      padding: 22px;
+      overflow: hidden;
+    }
+
+    .phone-preview::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(135deg, rgba(58, 155, 114, .13), transparent 38%),
+        linear-gradient(315deg, rgba(255, 231, 214, .9), transparent 42%);
+      pointer-events: none;
+    }
+
+    .phone-inner {
+      position: relative;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fbfcfa;
+      padding: 16px;
+    }
+
+    .phone-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .habit-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      padding: 14px;
+      margin-bottom: 10px;
+    }
+
+    .habit-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+      font-weight: 800;
+    }
+
+    .status-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .status {
+      min-height: 34px;
+      border-radius: var(--radius);
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+      font-weight: 800;
+      border: 1px solid var(--line);
+      background: #f7f9f6;
+    }
+
+    .status.done {
+      background: #dff3e5;
+      color: var(--green-dark);
+      border-color: #bde2c8;
+    }
+
+    .status.fail {
+      background: #fae5e1;
+      color: #9c3d31;
+      border-color: #f0c7bf;
+    }
+
+    .status.skip {
+      background: #f7edce;
+      color: #805f10;
+      border-color: #ead48a;
+    }
+
+    .grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .grid.cols-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .grid.cols-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .overview {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 26px;
+    }
+
+    .overview-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      padding: 16px;
+      box-shadow: 0 8px 24px rgba(71, 89, 78, .06);
+    }
+
+    .overview-card:nth-child(2) {
+      background: #f2f8fb;
+    }
+
+    .overview-card:nth-child(3) {
+      background: #fff7e2;
+    }
+
+    .overview-card:nth-child(4) {
+      background: #f4f0ff;
+    }
+
+    .overview-card strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 15px;
+    }
+
+    .overview-card span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: 0 8px 24px rgba(71, 89, 78, .06);
+      padding: 20px;
+    }
+
+    .panel h2 {
+      margin-bottom: 4px;
+      font-size: 21px;
+      letter-spacing: 0;
+    }
+
+    .panel h3 {
+      margin-bottom: 8px;
+      font-size: 16px;
+      letter-spacing: 0;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .metric {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      min-height: 108px;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 36px;
+      line-height: 1;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .trend {
+      color: var(--green-dark);
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    .section {
+      margin-top: 34px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 14px;
+    }
+
+    .section-title h2 {
+      margin-bottom: 2px;
+      font-size: 25px;
+    }
+
+    .today-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .task-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 14px;
+      align-items: center;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+    }
+
+    .task-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      padding: 4px 8px;
+      border-radius: var(--radius);
+      background: var(--surface-soft);
+      color: var(--green-dark);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .tag.blue {
+      background: #e5ecf7;
+      color: var(--blue);
+    }
+
+    .tag.yellow {
+      background: #fbf0cc;
+      color: #77550c;
+    }
+
+    .task-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      width: 38px;
+      height: 38px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      display: grid;
+      place-items: center;
+      background: #ffffff;
+      font-weight: 900;
+      color: var(--ink);
+    }
+
+    .icon-btn.ok {
+      background: #dff3e5;
+      color: var(--green-dark);
+      border-color: #bde2c8;
+    }
+
+    .icon-btn.no {
+      background: #fae5e1;
+      color: #9c3d31;
+      border-color: #f0c7bf;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      color: #39443d;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fbfcfa;
+      padding: 11px 12px;
+      color: var(--ink);
+      outline: 0;
+    }
+
+    textarea {
+      min-height: 92px;
+      resize: vertical;
+    }
+
+    .days {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .day {
+      min-width: 38px;
+      min-height: 36px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #ffffff;
+      color: var(--muted);
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    .day.selected {
+      background: var(--green);
+      border-color: var(--green);
+      color: #ffffff;
+    }
+
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .cal-cell {
+      aspect-ratio: 1;
+      min-height: 38px;
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      background: #f9faf8;
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--muted);
+    }
+
+    .cal-cell.done {
+      background: #dff3e5;
+      color: var(--green-dark);
+      border-color: #bde2c8;
+    }
+
+    .cal-cell.fail {
+      background: #fae5e1;
+      color: #9c3d31;
+      border-color: #f0c7bf;
+    }
+
+    .cal-cell.skip {
+      background: #fbf0cc;
+      color: #77550c;
+      border-color: #ead48a;
+    }
+
+    .bars {
+      display: grid;
+      gap: 12px;
+    }
+
+    .bar-item {
+      display: grid;
+      gap: 7px;
+    }
+
+    .bar-head {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .bar {
+      height: 10px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #edf1ed;
+    }
+
+    .bar span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--teal);
+    }
+
+    .upgrade {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 18px;
+      align-items: center;
+      border: 1px solid #ead48a;
+      background: #fff8e5;
+    }
+
+    .price {
+      text-align: right;
+      font-weight: 900;
+      color: #5d4309;
+    }
+
+    .price strong {
+      display: block;
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .flow-step {
+      position: relative;
+      min-height: 120px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      padding: 16px;
+    }
+
+    .step-number {
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: #dff3e5;
+      color: var(--green-dark);
+      font-weight: 900;
+      margin-bottom: 12px;
+    }
+
+    .schema {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(150px, 1fr));
+      gap: 12px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+
+    .table-box {
+      min-width: 150px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #ffffff;
+      overflow: hidden;
+    }
+
+    .table-box strong {
+      display: block;
+      padding: 10px 12px;
+      background: #edf4ef;
+      color: var(--green-dark);
+    }
+
+    .table-box span {
+      display: block;
+      padding: 8px 12px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .qa-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .qa-item {
+      display: grid;
+      grid-template-columns: 74px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #ffffff;
+    }
+
+    .qa-code {
+      display: inline-flex;
+      justify-content: center;
+      padding: 5px 8px;
+      border-radius: var(--radius);
+      background: #e5ecf7;
+      color: var(--blue);
+      font-weight: 900;
+      font-size: 12px;
+    }
+
+    .footer-note {
+      margin-top: 28px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 980px) {
+      .sidebar {
+        position: static;
+        height: auto;
+        padding: 16px;
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .nav {
+        justify-content: flex-start;
+      }
+
+      .plan-box {
+        display: none;
+      }
+
+      .hero,
+      .grid.cols-2,
+      .grid.cols-3,
+      .overview {
+        grid-template-columns: 1fr;
+      }
+
+      .flow {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      .topbar,
+      .content {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+
+      .topbar {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .nav {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        width: 100%;
+      }
+
+      .hero-copy {
+        padding: 22px;
+      }
+
+      h1 {
+        font-size: 34px;
+      }
+
+      .task-row,
+      .upgrade,
+      .qa-item {
+        grid-template-columns: 1fr;
+      }
+
+      .task-actions,
+      .price {
+        justify-content: flex-start;
+        text-align: left;
+      }
+
+      .form-grid,
+      .flow {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Navegacion principal">
+      <div class="brand">
+        <div class="brand-mark">H</div>
+        <div>
+          <strong>Habitos</strong>
+          <span>MVP academico 2025</span>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <a class="active" href="#dashboard"><span class="nav-icon">▣</span> Dashboard</a>
+        <a href="#crear"><span class="nav-icon">＋</span> Nuevo habito</a>
+        <a href="#estadisticas"><span class="nav-icon">◫</span> Estadisticas</a>
+        <a href="#premium"><span class="nav-icon">◆</span> Premium</a>
+        <a href="#arquitectura"><span class="nav-icon">⌘</span> Arquitectura</a>
+        <a href="#qa"><span class="nav-icon">✓</span> QA</a>
+      </nav>
+
+      <div class="plan-box">
+        <small>Plan gratuito</small>
+        <strong>4 de 5 habitos activos</strong>
+        <div class="progress" aria-hidden="true"><span></span></div>
+        <a class="btn light" href="#premium">Ver upgrade</a>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="search" role="search">
+          <span aria-hidden="true">⌕</span>
+          <input type="search" value="" placeholder="Buscar habitos, categorias o estadisticas">
+        </div>
+        <div class="user-chip">
+          <div class="avatar">EL</div>
+          <div>
+            <strong>Eloy</strong><br>
+            <span class="muted">America/Argentina/Buenos_Aires</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="content">
+        <section class="hero" id="dashboard">
+          <div class="hero-copy">
+            <div class="eyebrow">Sistema de Gestion de Habitos</div>
+            <h1>Seguimiento simple para sostener rutinas reales.</h1>
+            <p>Mockup basado en la especificacion tecnica, de negocio y QA: dashboard diario, tracking, rachas por ocurrencias, estadisticas con limite freemium y simulacion de Premium.</p>
+            <div class="hero-actions">
+              <a class="btn light" href="#crear">＋ Crear primer habito</a>
+              <a class="btn ghost" href="#estadisticas">◫ Ver progreso</a>
+            </div>
+          </div>
+
+          <div class="phone-preview" aria-label="Vista movil del dashboard">
+            <div class="phone-inner">
+              <div class="phone-head">
+                <strong>Hoy, miercoles</strong>
+                <span>3 pendientes</span>
+              </div>
+              <article class="habit-card">
+                <div class="habit-title">
+                  <span>Estudiar Laravel</span>
+                  <span class="tag blue">Estudio</span>
+                </div>
+                <div class="status-row">
+                  <span class="status done">Completado</span>
+                  <span class="status fail">Fallado</span>
+                  <span class="status skip">Omitir</span>
+                </div>
+              </article>
+              <article class="habit-card">
+                <div class="habit-title">
+                  <span>Caminar 30 min</span>
+                  <span class="tag">Salud</span>
+                </div>
+                <div class="status-row">
+                  <span class="status">✓</span>
+                  <span class="status">×</span>
+                  <span class="status">–</span>
+                </div>
+              </article>
+              <article class="habit-card">
+                <div class="habit-title">
+                  <span>Leer antes de dormir</span>
+                  <span class="tag yellow">Bienestar</span>
+                </div>
+                <div class="status-row">
+                  <span class="status">✓</span>
+                  <span class="status">×</span>
+                  <span class="status">–</span>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="overview" aria-label="Resumen del mockup">
+          <article class="overview-card">
+            <strong>1. Producto</strong>
+            <span>Seguimiento diario de habitos sin gamificacion forzada ni distracciones.</span>
+          </article>
+          <article class="overview-card">
+            <strong>2. Uso principal</strong>
+            <span>Crear habitos, ver los que corresponden hoy y registrar el resultado.</span>
+          </article>
+          <article class="overview-card">
+            <strong>3. Negocio</strong>
+            <span>Freemium: 5 habitos activos y estadisticas limitadas a 7 dias.</span>
+          </article>
+          <article class="overview-card">
+            <strong>4. Soporte tecnico</strong>
+            <span>Laravel MVC, MySQL, rachas, timezone, seguridad y casos QA criticos.</span>
+          </article>
+        </section>
+
+        <section class="section-title" aria-label="Vista principal">
+          <div>
+            <h2>Vista principal de la app</h2>
+            <p class="muted">Esta parte representa lo que veria el usuario al entrar al sistema.</p>
+          </div>
+        </section>
+
+        <section class="grid cols-3" aria-label="Indicadores principales">
+          <article class="panel metric">
+            <div>
+              <span>Racha actual</span>
+              <strong>12</strong>
+            </div>
+            <div class="trend">+3 esta semana</div>
+          </article>
+          <article class="panel metric">
+            <div>
+              <span>Cumplimiento</span>
+              <strong>82%</strong>
+            </div>
+            <div class="trend">Ultimos 7 dias</div>
+          </article>
+          <article class="panel metric">
+            <div>
+              <span>Habitos activos</span>
+              <strong>4/5</strong>
+            </div>
+            <div class="trend">Plan gratis</div>
+          </article>
+        </section>
+
+        <section class="section grid cols-2">
+          <div class="panel">
+            <div class="section-title">
+              <div>
+                <h2>Habitos de hoy</h2>
+                <p class="muted">Filtrados por periodicidad y timezone del usuario.</p>
+              </div>
+              <a class="btn primary" href="#crear">＋ Nuevo</a>
+            </div>
+
+            <div class="today-list">
+              <article class="task-row">
+                <div>
+                  <strong>Estudiar Laravel y PHPUnit</strong>
+                  <div class="task-meta">
+                    <span class="tag blue">Estudio</span>
+                    <span class="tag">Lun, Mie, Vie</span>
+                    <span class="tag yellow">Racha 4</span>
+                  </div>
+                </div>
+                <div class="task-actions" aria-label="Acciones de tracking">
+                  <button class="icon-btn ok" title="Marcar completado">✓</button>
+                  <button class="icon-btn no" title="Marcar fallado">×</button>
+                  <button class="icon-btn" title="Omitir">–</button>
+                </div>
+              </article>
+
+              <article class="task-row">
+                <div>
+                  <strong>Caminar 30 minutos</strong>
+                  <div class="task-meta">
+                    <span class="tag">Salud</span>
+                    <span class="tag">Diario</span>
+                    <span class="tag yellow">Racha 12</span>
+                  </div>
+                </div>
+                <div class="task-actions" aria-label="Acciones de tracking">
+                  <button class="icon-btn ok" title="Marcar completado">✓</button>
+                  <button class="icon-btn no" title="Marcar fallado">×</button>
+                  <button class="icon-btn" title="Omitir">–</button>
+                </div>
+              </article>
+
+              <article class="task-row">
+                <div>
+                  <strong>Revisar finanzas personales</strong>
+                  <div class="task-meta">
+                    <span class="tag blue">Finanzas</span>
+                    <span class="tag">Dia 15 del mes</span>
+                    <span class="tag yellow">Racha 1</span>
+                  </div>
+                </div>
+                <div class="task-actions" aria-label="Acciones de tracking">
+                  <button class="icon-btn ok" title="Marcar completado">✓</button>
+                  <button class="icon-btn no" title="Marcar fallado">×</button>
+                  <button class="icon-btn" title="Omitir">–</button>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h2>Estado vacio previsto</h2>
+            <p class="muted">Cuando no hay habitos programados para hoy, la app evita la pantalla en blanco y mantiene una salida clara.</p>
+            <div class="habit-card">
+              <div class="habit-title">
+                <span>No tenes habitos para hoy</span>
+                <span class="tag">Q7</span>
+              </div>
+              <p class="muted">Buen momento para revisar tus estadisticas o planificar una nueva rutina sin forzar registros innecesarios.</p>
+              <div class="hero-actions">
+                <a class="btn primary" href="#estadisticas">◫ Ir a estadisticas</a>
+                <a class="btn ghost" href="#crear">＋ Crear habito</a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section grid cols-2" id="crear">
+          <div class="panel">
+            <div class="section-title">
+              <div>
+                <h2>Crear habito</h2>
+                <p class="muted">Onboarding operativo en menos de 3 pasos.</p>
+              </div>
+            </div>
+            <form class="form-grid">
+              <div class="field">
+                <label for="titulo">Titulo</label>
+                <input id="titulo" value="Meditar 10 minutos">
+              </div>
+              <div class="field">
+                <label for="categoria">Categoria</label>
+                <select id="categoria">
+                  <option>Bienestar</option>
+                  <option>Salud</option>
+                  <option>Estudio</option>
+                  <option>Finanzas</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="periodicidad">Periodicidad</label>
+                <select id="periodicidad">
+                  <option>Semanal con dias especificos</option>
+                  <option>Diaria</option>
+                  <option>Mensual</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Dias</label>
+                <div class="days">
+                  <span class="day selected">L</span>
+                  <span class="day">M</span>
+                  <span class="day selected">X</span>
+                  <span class="day">J</span>
+                  <span class="day selected">V</span>
+                  <span class="day">S</span>
+                  <span class="day">D</span>
+                </div>
+              </div>
+              <div class="field full">
+                <label for="descripcion">Descripcion opcional</label>
+                <textarea id="descripcion">Practica breve antes de empezar a estudiar.</textarea>
+              </div>
+              <div class="field full">
+                <button class="btn dark" type="button">Guardar habito</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="panel upgrade" id="premium">
+            <div>
+              <span class="tag yellow">Gate freemium</span>
+              <h2>Limite de plan gratuito alcanzado</h2>
+              <p class="muted">Si el usuario intenta crear un sexto habito activo, el servidor responde HTTP 422 con <strong>plan_limit_reached</strong> y la interfaz muestra este bloque de upgrade.</p>
+              <div class="hero-actions">
+                <a class="btn primary" href="#premium">◆ Activar Premium</a>
+                <a class="btn ghost" href="#estadisticas">Comparar planes</a>
+              </div>
+            </div>
+            <div class="price">
+              <span>desde</span>
+              <strong>USD 4</strong>
+              <span>por mes</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="section grid cols-2" id="estadisticas">
+          <div class="panel">
+            <div class="section-title">
+              <div>
+                <h2>Estadisticas</h2>
+                <p class="muted">Plan gratuito: ultimos 7 dias. Premium: historial completo.</p>
+              </div>
+              <span class="tag">Gratis</span>
+            </div>
+            <div class="calendar" aria-label="Calendario de cumplimiento">
+              <span class="cal-cell done">1</span>
+              <span class="cal-cell done">2</span>
+              <span class="cal-cell skip">3</span>
+              <span class="cal-cell done">4</span>
+              <span class="cal-cell fail">5</span>
+              <span class="cal-cell done">6</span>
+              <span class="cal-cell done">7</span>
+              <span class="cal-cell">8</span>
+              <span class="cal-cell">9</span>
+              <span class="cal-cell">10</span>
+              <span class="cal-cell">11</span>
+              <span class="cal-cell">12</span>
+              <span class="cal-cell">13</span>
+              <span class="cal-cell">14</span>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h2>Cumplimiento por categoria</h2>
+            <p class="muted">Resumen visual para detectar rutinas fuertes y debiles.</p>
+            <div class="bars">
+              <div class="bar-item">
+                <div class="bar-head"><span>Salud</span><span>91%</span></div>
+                <div class="bar"><span style="width: 91%"></span></div>
+              </div>
+              <div class="bar-item">
+                <div class="bar-head"><span>Estudio</span><span>76%</span></div>
+                <div class="bar"><span style="width: 76%; background: var(--blue)"></span></div>
+              </div>
+              <div class="bar-item">
+                <div class="bar-head"><span>Bienestar</span><span>64%</span></div>
+                <div class="bar"><span style="width: 64%; background: var(--yellow)"></span></div>
+              </div>
+              <div class="bar-item">
+                <div class="bar-head"><span>Finanzas</span><span>50%</span></div>
+                <div class="bar"><span style="width: 50%; background: var(--red)"></span></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="arquitectura">
+          <div class="section-title">
+            <div>
+              <h2>Arquitectura y modelo de datos</h2>
+              <p class="muted">Resumen presentable del stack Laravel MVC y las entidades principales.</p>
+            </div>
+          </div>
+
+          <div class="grid cols-3">
+            <article class="panel">
+              <h3>Modelo</h3>
+              <p class="muted">Eloquent ORM gestiona usuarios, habitos, programacion y tracking con soft delete donde corresponde.</p>
+            </article>
+            <article class="panel">
+              <h3>Vista</h3>
+              <p class="muted">Blade + Tailwind CSS para dashboard, formularios, estadisticas y componente de upgrade.</p>
+            </article>
+            <article class="panel">
+              <h3>Controlador</h3>
+              <p class="muted">Controllers de Laravel aplican reglas de plan, autorizacion, periodicidad y validacion server-side.</p>
+            </article>
+          </div>
+
+          <div class="section schema" aria-label="Modelo de datos">
+            <div class="table-box">
+              <strong>users</strong>
+              <span>id</span>
+              <span>email</span>
+              <span>timezone</span>
+              <span>plan_expires_at</span>
+            </div>
+            <div class="table-box">
+              <strong>categories</strong>
+              <span>id</span>
+              <span>nombre</span>
+              <span>color_icono</span>
+            </div>
+            <div class="table-box">
+              <strong>habits</strong>
+              <span>usuario_id</span>
+              <span>categoria_id</span>
+              <span>titulo</span>
+              <span>deleted_at</span>
+            </div>
+            <div class="table-box">
+              <strong>habit_schedule</strong>
+              <span>habito_id</span>
+              <span>tipo</span>
+              <span>dias_semana</span>
+              <span>dia_mes</span>
+            </div>
+            <div class="table-box">
+              <strong>habit_tracking</strong>
+              <span>habito_id</span>
+              <span>fecha_registro</span>
+              <span>estado_cumplimiento</span>
+              <span>registrado_por_sistema</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-title">
+            <div>
+              <h2>Flujo de aplicacion</h2>
+              <p class="muted">Desde registro hasta estadisticas, con validaciones clave del MVP.</p>
+            </div>
+          </div>
+          <div class="flow">
+            <article class="flow-step">
+              <div class="step-number">1</div>
+              <h3>Registro</h3>
+              <p class="muted">Nombre, email, password y timezone validado por Laravel.</p>
+            </article>
+            <article class="flow-step">
+              <div class="step-number">2</div>
+              <h3>Primer habito</h3>
+              <p class="muted">Formulario breve con categoria y periodicidad flexible.</p>
+            </article>
+            <article class="flow-step">
+              <div class="step-number">3</div>
+              <h3>Tracking diario</h3>
+              <p class="muted">Completado, fallado u omitido. Sin fechas futuras.</p>
+            </article>
+            <article class="flow-step">
+              <div class="step-number">4</div>
+              <h3>Analisis</h3>
+              <p class="muted">Rachas por ocurrencias y calendario segun plan.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="section grid cols-2" id="qa">
+          <div class="panel">
+            <h2>Reglas criticas</h2>
+            <div class="qa-list">
+              <div class="qa-item">
+                <span class="qa-code">Q1</span>
+                <div><strong>Limite de 5 activos</strong><br><span class="muted">El sexto habito gratuito se bloquea desde servidor.</span></div>
+              </div>
+              <div class="qa-item">
+                <span class="qa-code">Q4</span>
+                <div><strong>Racha por ocurrencias</strong><br><span class="muted">No se mide por semana completa, sino por cada fecha programada.</span></div>
+              </div>
+              <div class="qa-item">
+                <span class="qa-code">Q8</span>
+                <div><strong>Timezone resiliente</strong><br><span class="muted">Validacion en request y fallback seguro en el modelo.</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h2>Plan de pruebas QA</h2>
+            <div class="qa-list">
+              <div class="qa-item">
+                <span class="qa-code">TC-01</span>
+                <div><strong>Gate freemium</strong><br><span class="muted">HTTP 422 y sin persistencia del sexto habito.</span></div>
+              </div>
+              <div class="qa-item">
+                <span class="qa-code">TC-05</span>
+                <div><strong>Aislamiento de datos</strong><br><span class="muted">Policies garantizan HTTP 403 entre usuarios.</span></div>
+              </div>
+              <div class="qa-item">
+                <span class="qa-code">TC-07</span>
+                <div><strong>Dashboard vacio</strong><br><span class="muted">HTTP 200, mensaje motivacional y acceso a estadisticas.</span></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section panel">
+          <div class="section-title">
+            <div>
+              <h2>Roadmap</h2>
+              <p class="muted">Evolucion prevista despues del MVP academico.</p>
+            </div>
+          </div>
+          <div class="flow">
+            <article class="flow-step">
+              <div class="step-number">M</div>
+              <h3>MVP</h3>
+              <p class="muted">CRUD, tracking, rachas, estadisticas, auth y gates freemium.</p>
+            </article>
+            <article class="flow-step">
+              <div class="step-number">2</div>
+              <h3>PWA</h3>
+              <p class="muted">Experiencia movil sin descarga y emails diarios.</p>
+            </article>
+            <article class="flow-step">
+              <div class="step-number">3</div>
+              <h3>Metas</h3>
+              <p class="muted">Notificaciones push y objetivos cuantitativos.</p>
+            </article>
+            <article class="flow-step">
+              <div class="step-number">4</div>
+              <h3>Pagos</h3>
+              <p class="muted">Stripe o MercadoPago, exportacion PDF/CSV y analitica avanzada.</p>
+            </article>
+          </div>
+        </section>
+
+        <p class="footer-note">Mockup HTML generado a partir de <strong>sistema_habitos_especificacion_2md.md</strong>. Es un prototipo visual estatico para presentacion, no una implementacion Laravel funcional.</p>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

@@ -83,11 +83,11 @@ class HabitStatisticsService
         $period = CarbonPeriod::create($habit->fecha_inicio, $today);
 
         return collect($period)
-            ->filter(fn (Carbon $date) => $this->isScheduledFor($habit, $date))
+            ->filter(fn (\Carbon\Carbon $date) => $this->isScheduledFor($habit, $date))
             ->values();
     }
 
-    public function isScheduledFor(Habit $habit, Carbon $date): bool
+    public function isScheduledFor(Habit $habit, \Carbon\Carbon $date): bool
     {
         $schedule = $habit->schedule;
 

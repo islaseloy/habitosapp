@@ -14,10 +14,12 @@ class HabitTrackingController extends Controller
         $habit = Habit::query()->findOrFail($request->validated('habito_id'));
         abort_if($habit->usuario_id !== $request->user()->id, 403);
 
+        $fecha = \Illuminate\Support\Carbon::parse($request->validated('fecha_registro'))->startOfDay();
+
         $tracking = HabitTracking::query()->updateOrCreate(
             [
                 'habito_id' => $habit->id,
-                'fecha_registro' => $request->validated('fecha_registro'),
+                'fecha_registro' => $fecha,
             ],
             [
                 'estado_cumplimiento' => $request->validated('estado_cumplimiento'),
