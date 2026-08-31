@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: ['8.3']
+        php: ['8.4']
 
     steps:
     - name: Checkout code
@@ -59,4 +59,4 @@ jobs:
         php artisan key:generate
 
     - name: Execute Tests via PHPUnit / Artisan
-      run: php artisan test --parallel
+      run: php artisan test
