@@ -109,7 +109,7 @@ Al hacer `git push` a tu repositorio en las ramas `main`, `master` o `develop`, 
 2. Instala dependencias con Composer y compila los assets frontend con Vite/Tailwind v4.
 3. Ejecuta los **34 tests automatizados** y genera el reporte de éxito en la pestaña **Actions** de GitHub.
 
-### B. Despliegue en Servidores de Desarrollo (Railway / Render)
+### B. Despliegue en Servidores de Desarrollo
 Para desplegar la aplicación a un servidor de desarrollo accesible por internet:
 
 #### En Railway.app:
@@ -125,10 +125,3 @@ Para desplegar la aplicación a un servidor de desarrollo accesible por internet
 4. En **Settings → Build & Start Command**, Railway detectará Laravel automáticamente mediante Nixpacks y ejecutará:
    - Build: `composer install --no-dev && npm install && npm run build`
    - Start: `php artisan migrate --force && php artisan db:seed --force && php artisan serve --host=0.0.0.0 --port=$PORT`
-
-#### En Render.com:
-1. Crea un **New Web Service** conectado a tu repo de GitHub.
-2. Runtime: **PHP**.
-3. Build Command: `composer install --no-dev --optimize-autoloader && npm install && npm run build`
-4. Start Command: `php artisan migrate --force && php artisan db:seed --force && php artisan serve --host=0.0.0.0 --port=$PORT`
-5. Configura las mismas variables de entorno en la pestaña **Environment**.
