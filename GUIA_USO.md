@@ -96,3 +96,39 @@ Para simular de manera manual cómo actúa el cronjob programado a medianoche de
    php artisan habits:close-day
    ```
 3. Si en tu zona horaria local es la hora de la medianoche (`00:00 - 00:59`), el comando marcará el hábito pendiente de ayer como **Omitido** por el sistema y reseteará tu racha actual a 0. Si no es tu medianoche, el comando informará que no procesó hábitos para tu zona horaria (lo cual valida el aislamiento de timezones).
+
+---
+
+## 3. Testing Embebido & Despliegue en la Nube (CI/CD)
+
+El proyecto cuenta con un sistema de testing automatizado embebido en el flujo de desarrollo y repositorio:
+
+### A. Pipeline Automatizado de GitHub Actions (CI)
+Al hacer `git push` a tu repositorio en las ramas `main`, `master` o `develop`, se dispara automáticamente el flujo de **GitHub Actions** configurado en `.github/workflows/tests.yml`:
+1. Levanta un entorno Ubuntu con PHP 8.3 y SQLite.
+2. Instala dependencias con Composer y compila los assets frontend con Vite/Tailwind v4.
+3. Ejecuta los **34 tests automatizados** y genera el reporte de éxito en la pestaña **Actions** de GitHub.
+
+### B. Despliegue en Servidores de Desarrollo (Railway / Render)
+Para desplegar la aplicación a un servidor de desarrollo accesible por internet:
+
+#### En Railway.app:
+1. Entra a [Railway.app](https://railway.app) y haz clic en **New Project → Deploy from GitHub repo**.
+2. Selecciona tu repositorio `habitosapp`.
+3. En la pestaña **Variables**, añade las siguientes variables de entorno:
+   - `APP_NAME=Habitos`
+   - `APP_ENV=production`
+   - `APP_KEY=` *(El valor de tu APP_KEY del archivo .env local)*
+   - `APP_DEBUG=false`
+   - `APP_URL=` *(La URL pública que te asigne Railway)*
+   - `DB_CONNECTION=sqlite`
+4. En **Settings → Build & Start Command**, Railway detectará Laravel automáticamente mediante Nixpacks y ejecutará:
+   - Build: `composer install --no-dev && npm install && npm run build`
+   - Start: `php artisan migrate --force && php artisan db:seed --force && php artisan serve --host=0.0.0.0 --port=$PORT`
+
+#### En Render.com:
+1. Crea un **New Web Service** conectado a tu repo de GitHub.
+2. Runtime: **PHP**.
+3. Build Command: `composer install --no-dev --optimize-autoloader && npm install && npm run build`
+4. Start Command: `php artisan migrate --force && php artisan db:seed --force && php artisan serve --host=0.0.0.0 --port=$PORT`
+5. Configura las mismas variables de entorno en la pestaña **Environment**.
