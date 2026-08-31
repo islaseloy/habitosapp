@@ -32,16 +32,20 @@ class DatabaseSeeder extends Seeder
         }
 
         // 2. Seed Users
-        $freeUser = User::factory()->create([
+        $freeUser = User::create([
             'nombre' => 'Usuario Gratuito',
             'email' => 'gratis@example.com',
+            'password' => bcrypt('password'),
+            'email_verified_at' => now(),
             'plan_expires_at' => null,
             'timezone' => 'America/Argentina/Buenos_Aires',
         ]);
 
-        $premiumUser = User::factory()->create([
+        $premiumUser = User::create([
             'nombre' => 'Usuario Premium',
             'email' => 'premium@example.com',
+            'password' => bcrypt('password'),
+            'email_verified_at' => now(),
             'plan_expires_at' => now()->addDays(14),
             'timezone' => 'America/Argentina/Buenos_Aires',
         ]);
