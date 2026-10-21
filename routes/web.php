@@ -29,7 +29,7 @@ Route::middleware('auth')->group(function () {
     // AJAX API routes under session auth
     Route::prefix('api')->group(function () {
         Route::apiResource('categories', CategoryController::class)->only(['index', 'store']);
-        Route::apiResource('habits', HabitController::class)->only(['index', 'store', 'show', 'destroy']);
+        Route::apiResource('habits', HabitController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
         Route::get('habits/{habit}/statistics', [HabitController::class, 'statistics']);
         Route::post('habit-tracking', [HabitTrackingController::class, 'store']);
     });

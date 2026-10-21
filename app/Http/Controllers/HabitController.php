@@ -51,6 +51,22 @@ class HabitController extends Controller
         return response()->json($habit->load(['category', 'schedule', 'tracking']));
     }
 
+    public function update(HabitRequest $request, Habit $habit): JsonResponse
+    {
+        $this->authorizeHabit($request, $habit);
+
+        $habit->update($request->safe()->except('schedule'));
+
+        if ($request->has('schedule')) {
+            $habit->schedule()->updateOrCreate(
+                ['habito_id' => $habit->id],
+                $request->validated('schedule')
+            );
+        }
+
+        return response()->json($habit->fresh(['category', 'schedule']));
+    }
+
     public function destroy(Request $request, Habit $habit): JsonResponse
     {
         $this->authorizeHabit($request, $habit);
