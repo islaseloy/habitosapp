@@ -18,6 +18,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Prevent duplicate seeding on persistent databases (e.g. PostgreSQL Neon)
+        if (User::where('email', 'gratis@example.com')->exists()) {
+            return;
+        }
+
         // 1. Seed Categories
         $categories = [
             ['nombre' => 'Salud', 'color_icono' => '#3a9b72'],

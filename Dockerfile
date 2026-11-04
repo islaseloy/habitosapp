@@ -9,17 +9,19 @@ RUN npm run build
 # Stage 2: PHP 8.4 Application
 FROM php:8.4-cli-alpine
 
-# Install system dependencies & PHP extensions for SQLite and Laravel
+# Install system dependencies & PHP extensions for SQLite, PostgreSQL and Laravel
 RUN apk add --no-cache \
     sqlite-libs \
     sqlite-dev \
+    postgresql-libs \
+    postgresql-dev \
     libpng-dev \
     libxml2-dev \
     zip \
     unzip \
     curl \
     git \
-    && docker-php-ext-install pdo_sqlite bcmath
+    && docker-php-ext-install pdo_sqlite pdo_pgsql bcmath
 
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
