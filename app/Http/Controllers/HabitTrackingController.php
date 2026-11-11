@@ -29,11 +29,12 @@ class HabitTrackingController extends Controller
             ],
         );
 
-        $habit->load(['schedule', 'tracking', 'user']);
         $summary = $statistics->dashboardSummary($request->user());
+        $habitStreak = $summary['habit_streaks'][$habit->id]
+            ?? $statistics->currentStreak($habit->load(['schedule', 'tracking', 'user']));
 
         return response()->json(array_merge($tracking->toArray(), [
-            'habit_streak' => $statistics->currentStreak($habit),
+            'habit_streak' => $habitStreak,
             'global_streak' => $summary['global_streak'],
             'weekly_compliance_rate' => $summary['weekly_compliance_rate'],
         ]), $tracking->wasRecentlyCreated ? 201 : 200);

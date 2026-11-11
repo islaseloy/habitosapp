@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\Habit;
-use App\Models\HabitTracking;
 use App\Models\User;
 use Carbon\CarbonPeriod;
 use Illuminate\Support\Carbon;
@@ -102,35 +101,39 @@ class HabitStatisticsService
     }
 
     /**
-     * Calculate summary dashboard metrics (weekly compliance rate and max current streak).
+     * Calculate summary dashboard metrics (weekly compliance rate, max current streak, and per-habit streaks).
      */
     public function dashboardSummary(User $user): array
     {
         $sevenDaysAgo = Carbon::today($user->timezone)->subDays(6);
-        $habitIds = $user->habits()->pluck('id');
 
-        $recentTrackings = HabitTracking::query()
-            ->whereIn('habito_id', $habitIds)
-            ->whereDate('fecha_registro', '>=', $sevenDaysAgo->toDateString())
+        $allHabits = $user->habits()
+            ->with(['schedule', 'tracking'])
             ->get();
+
+        $recentTrackings = $allHabits
+            ->pluck('tracking')
+            ->flatten()
+            ->filter(fn ($t) => $t->fecha_registro->gte($sevenDaysAgo));
 
         $totalRecent = $recentTrackings->count();
         $completedRecent = $recentTrackings->where('estado_cumplimiento', 'completado')->count();
         $weeklyComplianceRate = $totalRecent === 0 ? 0 : (int) round(($completedRecent / $totalRecent) * 100);
 
-        $activeHabits = $user->habits()
-            ->with(['schedule', 'tracking', 'user'])
-            ->where('estado', true)
-            ->get();
-
         $globalStreak = 0;
-        foreach ($activeHabits as $activeHabit) {
-            $globalStreak = max($globalStreak, $this->currentStreak($activeHabit));
+        $habitStreaks = [];
+
+        foreach ($allHabits->where('estado', true) as $activeHabit) {
+            $activeHabit->setRelation('user', $user);
+            $streak = $this->currentStreak($activeHabit);
+            $habitStreaks[$activeHabit->id] = $streak;
+            $globalStreak = max($globalStreak, $streak);
         }
 
         return [
             'weekly_compliance_rate' => $weeklyComplianceRate,
             'global_streak' => $globalStreak,
+            'habit_streaks' => $habitStreaks,
         ];
     }
 }
