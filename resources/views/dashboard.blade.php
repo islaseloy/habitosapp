@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div x-data="habitTracker('{{ Carbon\Carbon::today(Auth::user()->timezone)->toDateString() }}')">
+    <div x-data="habitTracker('{{ Carbon\Carbon::today(Auth::user()->timezone)->toDateString() }}', {{ $globalStreak }}, {{ $weeklyComplianceRate }})">
         <!-- Page Header Summary -->
     <div class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
@@ -19,7 +19,7 @@
         <div class="bg-habits-surface p-5 rounded-xl border border-habits-line shadow-xs flex items-center justify-between">
             <div>
                 <span class="text-3xs font-bold text-habits-muted uppercase tracking-wider block mb-1">Racha Máxima Hoy</span>
-                <strong class="text-3xl font-extrabold text-habits-ink tracking-tight block">{{ $globalStreak }}</strong>
+                <strong class="text-3xl font-extrabold text-habits-ink tracking-tight block" x-text="globalStreak">{{ $globalStreak }}</strong>
             </div>
             <div class="w-12 h-12 rounded-full bg-[#fff7e2] text-[#805f10] flex items-center justify-center text-xl font-bold border border-[#f0dfad]">
                 🔥
@@ -30,7 +30,7 @@
         <div class="bg-habits-surface p-5 rounded-xl border border-habits-line shadow-xs flex items-center justify-between">
             <div>
                 <span class="text-3xs font-bold text-habits-muted uppercase tracking-wider block mb-1">Cumplimiento (Últimos 7 días)</span>
-                <strong class="text-3xl font-extrabold text-habits-ink tracking-tight block">{{ $weeklyComplianceRate }}%</strong>
+                <strong class="text-3xl font-extrabold text-habits-ink tracking-tight block"><span x-text="weeklyComplianceRate">{{ $weeklyComplianceRate }}</span>%</strong>
             </div>
             <div class="w-12 h-12 rounded-full bg-habits-surface-soft text-habits-green-dark flex items-center justify-center text-xl font-bold border border-habits-green/10">
                 📈
@@ -95,11 +95,11 @@
                                         (Día {{ $habit->schedule->dia_mes }})
                                     @endif
                                 </span>
-                                @if($habit->current_streak > 0)
-                                    <span class="px-2 py-0.5 text-3xs font-extrabold bg-[#fff7e2] text-[#805f10] border border-[#f0dfad] rounded-md flex items-center gap-0.5">
-                                        🔥 Racha: {{ $habit->current_streak }}
-                                    </span>
-                                @endif
+                                <span x-show="streaks[{{ $habit->id }}] > 0"
+                                      @if($habit->current_streak <= 0) style="display: none;" @endif
+                                      class="px-2 py-0.5 text-3xs font-extrabold bg-[#fff7e2] text-[#805f10] border border-[#f0dfad] rounded-md flex items-center gap-0.5">
+                                    🔥 Racha: <span x-text="streaks[{{ $habit->id }}]">{{ $habit->current_streak }}</span>
+                                </span>
                             </div>
                             <h3 class="text-sm font-bold text-habits-ink tracking-tight">{{ $habit->titulo }}</h3>
                             @if($habit->descripcion)
@@ -163,16 +163,23 @@
 
     <!-- AJAX Tracking Logic script -->
     <script>
-        function habitTracker(todayStr) {
+        function habitTracker(todayStr, initialGlobalStreak, initialWeeklyRate) {
             return {
+                globalStreak: initialGlobalStreak,
+                weeklyComplianceRate: initialWeeklyRate,
                 statuses: {
                     @foreach($todaysHabits as $habit)
-                        {{ $habit->id }}: '{{ $habit->today_tracking ? $habit->today_tracking->estado_cumplimiento : '' }}',
+                        {{ $habit->id }}: @json($habit->today_tracking?->estado_cumplimiento ?? ''),
+                    @endforeach
+                },
+                streaks: {
+                    @foreach($todaysHabits as $habit)
+                        {{ $habit->id }}: {{ $habit->current_streak }},
                     @endforeach
                 },
                 notes: {
                     @foreach($todaysHabits as $habit)
-                        {{ $habit->id }}: '{{ $habit->today_tracking ? str_replace("'", "\\'", $habit->today_tracking->notes_opcionales) : '' }}',
+                        {{ $habit->id }}: @json($habit->today_tracking?->notas_opcionales ?? ''),
                     @endforeach
                 },
                 date: todayStr,
@@ -222,14 +229,26 @@
                         })
                     })
                     .then(response => {
+                        if (response.status === 419 || response.status === 401) {
+                            window.location.reload();
+                            return;
+                        }
                         if (!response.ok) {
                             throw new Error('Error al registrar tracking');
                         }
                         return response.json();
                     })
                     .then(data => {
-                        // Success, we can optionally trigger a recalculation or refresh stats count
-                        console.log('Habit tracked successfully:', data);
+                        if (!data) return;
+                        if (typeof data.habit_streak !== 'undefined') {
+                            this.streaks[habitId] = data.habit_streak;
+                        }
+                        if (typeof data.global_streak !== 'undefined') {
+                            this.globalStreak = data.global_streak;
+                        }
+                        if (typeof data.weekly_compliance_rate !== 'undefined') {
+                            this.weeklyComplianceRate = data.weekly_compliance_rate;
+                        }
                     })
                     .catch(error => {
                         console.error('Error tracking habit:', error);

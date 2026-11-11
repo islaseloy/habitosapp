@@ -5,11 +5,12 @@ namespace App\Http\Controllers;
 use App\Http\Requests\HabitTrackingRequest;
 use App\Models\Habit;
 use App\Models\HabitTracking;
+use App\Services\HabitStatisticsService;
 use Illuminate\Http\JsonResponse;
 
 class HabitTrackingController extends Controller
 {
-    public function store(HabitTrackingRequest $request): JsonResponse
+    public function store(HabitTrackingRequest $request, HabitStatisticsService $statistics): JsonResponse
     {
         $habit = Habit::query()->findOrFail($request->validated('habito_id'));
         abort_if($habit->usuario_id !== $request->user()->id, 403);
@@ -28,6 +29,13 @@ class HabitTrackingController extends Controller
             ],
         );
 
-        return response()->json($tracking, $tracking->wasRecentlyCreated ? 201 : 200);
+        $habit->load(['schedule', 'tracking', 'user']);
+        $summary = $statistics->dashboardSummary($request->user());
+
+        return response()->json(array_merge($tracking->toArray(), [
+            'habit_streak' => $statistics->currentStreak($habit),
+            'global_streak' => $summary['global_streak'],
+            'weekly_compliance_rate' => $summary['weekly_compliance_rate'],
+        ]), $tracking->wasRecentlyCreated ? 201 : 200);
     }
 }

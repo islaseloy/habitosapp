@@ -48,26 +48,13 @@ class DashboardController extends Controller
             return $h->today_tracking && $h->today_tracking->estado_cumplimiento === 'completado';
         })->count();
 
-        // Calculate a weekly general completion rate (past 7 days)
-        $sevenDaysAgo = Carbon::today($user->timezone)->subDays(6);
-        $recentTrackings = HabitTracking::whereIn('habito_id', $user->habits()->pluck('id'))
-            ->whereDate('fecha_registro', '>=', $sevenDaysAgo->toDateString())
-            ->get();
-        $totalRecent = $recentTrackings->count();
-        $completedRecent = $recentTrackings->where('estado_cumplimiento', 'completado')->count();
-        $weeklyComplianceRate = $totalRecent === 0 ? 0 : round(($completedRecent / $totalRecent) * 100);
-
-        // Calculate global current streak (max of all streaks)
-        $globalStreak = 0;
-        foreach ($user->habits()->where('estado', true)->get() as $habit) {
-            $globalStreak = max($globalStreak, $statisticsService->currentStreak($habit));
-        }
+        $summary = $statisticsService->dashboardSummary($user);
 
         return view('dashboard', [
             'todaysHabits' => $todaysHabits,
             'completedToday' => $completedToday,
-            'weeklyComplianceRate' => $weeklyComplianceRate,
-            'globalStreak' => $globalStreak,
+            'weeklyComplianceRate' => $summary['weekly_compliance_rate'],
+            'globalStreak' => $summary['global_streak'],
             'todayDateName' => $today->translatedFormat('l d \d\e F'),
         ]);
     }
