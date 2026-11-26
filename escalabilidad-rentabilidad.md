@@ -55,22 +55,16 @@ Usuarios concurrentes = Usuarios totales × 0,05
 
 ### 2.3. Carga HTTP
 
-La prueba de k6 con 15 VUs produjo aproximadamente **1,18 requests/s** durante el escenario completo.
+La prueba actualizada de k6 con 15 VUs (usuario nuevo por vuelta, 0 % rechazos) produjo aproximadamente **0,59 requests/s** sobre la instancia gratuita de Render (`0,1 vCPU` monohilo + Neon remoto).
 
-Como aproximación inicial:
-
-```text
-1 VU ≈ 1,18 / 15
-     ≈ 0,079 req/s
-```
-
-Por lo tanto, para dimensionamiento preliminar:
+Como aproximación empírica sobre el entorno actual:
 
 ```text
-RPS estimado ≈ VUs concurrentes × 0,079
+1 VU ≈ 0,59 / 15
+     ≈ 0,039 req/s (limitado por saturación del worker único en Render Free)
 ```
 
-Este valor debe interpretarse como una aproximación del workload definido por el test, no como el tráfico universal de un usuario real.
+Por lo tanto, el throughput medido bajo carga real no refleja la capacidad de la arquitectura AWS propuesta, sino el techo de saturación del entorno gratuito (~0,6 req/s). Para dimensionamiento sobre AWS con HAProxy + PHP-FPM multi-worker y RDS en VPC privada se adopta una cota conservadora de tráfico esperado de **~2,0 req/s** para 25 usuarios concurrentes (equivalente a ~0,08 req/s por usuario activo).
 
 ---
 
@@ -91,7 +85,7 @@ Para el escenario inicial de 500 usuarios se propone una arquitectura simple y e
                     ┌───────────────┐
                     │ EC2 t3.medium │
                     │ 2 vCPU / 4 GB │
-                    │ Nginx         │
+                    │ HAProxy       │
                     │ PHP-FPM       │
                     │ Laravel       │
                     └───────┬───────┘
@@ -192,20 +186,20 @@ Este comportamiento hace que, bajo el supuesto de una conversión constante del 
 
 ---
 
-## 7. Relación con los resultados de k6
+## 7. Relación con los resultados actualizados de k6
 
-Los resultados reales obtenidos hasta el momento fueron:
+Los resultados reales obtenidos tras migrar a Neon PostgreSQL y corregir el script a **100 % trabajo productivo (0 % rechazos)** fueron:
 
-| Escenario | p95 HTTP | Resultado funcional |
-|---|---:|---:|
-| 1 VU | **1,66 s** | 100 % |
-| 15 VUs | **6,62 s** | 100 % |
+| Escenario | Throughput | p95 HTTP | Resultado funcional |
+|---|---:|---:|---:|
+| 1 VU (Baseline) | 0,43 req/s | **2,55 s** | 100 % |
+| 15 VUs (Carga) | 0,59 req/s | **22,76 s** | 100 % |
 
-La prueba mostró que la aplicación mantiene la correctitud funcional bajo la carga evaluada, pero experimenta una degradación importante de latencia cuando aumenta la concurrencia.
+La prueba demostró que, al eliminar los rechazos del 74,47 % del ensayo anterior, el sistema mantiene una correctitud funcional del 100 % sin errores HTTP, pero el tier gratuito actual (`0,1 vCPU`, `php artisan serve` monohilo y handshake TLS remoto a Neon) satura a **~0,59 req/s** elevando el `p95` a **22,76 s**.
 
-Por este motivo, no se toma 15 VUs como una capacidad máxima de usuarios finales. Se utiliza el resultado para calibrar el workload y justificar la necesidad de una infraestructura dedicada y escalable en producción.
+Asimismo, las capas gratuitas imponen límites duros no presentes en el modelo de AWS: **750 horas/mes** compartidas por workspace en Render (donde convivir con otros servicios suspende la app fuera de línea antes de fin de mes), suspensión por inactividad de 15 min, **512 MB RAM** y cuotas mensuales de **100 CU-hours / 5 GB egress** en Neon.
 
-La infraestructura propuesta busca eliminar la dependencia de un entorno compartido con *cold starts* y permite aumentar horizontalmente la capacidad del backend cuando los niveles de carga lo requieran.
+En la arquitectura propuesta sobre AWS (EC2 `t3.medium` + RDS `db.t4g.micro`), el margen reservado de **USD 20–30/mes** cubre costos operativos adicionales no triviales como **Data Transfer Out (egress a USD 0,09/GB tras 100 GB free)** y eventuales **CPU Credits** en instancias burstables, además de requerir control de `max_connections` en RDS (~66–80 conexiones en 1 GiB RAM).
 
 ---
 

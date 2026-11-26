@@ -28,16 +28,16 @@ Con 500 usuarios registrados y una conversión del 5 %:
 
 Se estiman aproximadamente **25 usuarios Premium** y **475 usuarios gratuitos**.
 
-### 2.2. Resultados de k6
+### 2.2. Resultados reales de k6 (Sistema actualizado: Render + Neon PostgreSQL, 0 % rechazos)
 
-Las pruebas realizadas permitieron observar el comportamiento de la aplicación tanto sin carga significativa como bajo concurrencia.
+Las pruebas actualizadas con un usuario nuevo por vuelta (eliminando la distorsión del 74,47 % de rechazos del primer ensayo) arrojaron el rendimiento real del sistema actual bajo trabajo 100 % productivo:
 
-| Escenario | VUs máximos | p95 HTTP | Checks funcionales |
-|---|---:|---:|---:|
-| Baseline | 1 | **1,66 s** | **100 %** |
-| Carga | 15 | **6,62 s** | **100 %** |
+| Escenario | VUs máximos | Throughput | p95 HTTP | Checks funcionales | Rechazos / Errores |
+|---|---:|---:|---:|---:|---:|
+| Baseline | 1 | 0,43 req/s | **2,55 s** | **100 %** | 0 % |
+| Carga | 15 | 0,59 req/s | **22,76 s** | **100 %** | 0 % |
 
-La prueba de 15 VUs no debe interpretarse como el límite absoluto de la aplicación, sino como un punto a partir del cual se observó una degradación significativa del rendimiento.
+Con 15 VUs ejecutando registro (`Bcrypt 12`), creación de hábito, tracking y estadísticas sobre `0,1 vCPU` y `php artisan serve` monohilo, la latencia `p95` trepó a **22,76 s** y el throughput quedó limitado a **0,59 req/s**. Esto demuestra empíricamente que el entorno gratuito actual satura rápidamente y valida la migración a cómputo dedicado con múltiples workers PHP-FPM y base de datos en VPC privada.
 
 Para el dimensionamiento inicial se adopta, de manera conservadora, un pico estimado de aproximadamente **25 usuarios concurrentes** sobre el escenario objetivo de 500 usuarios registrados.
 
@@ -63,7 +63,7 @@ La arquitectura propuesta para el MVP es:
                          ┌────────────────────┐
                          │ EC2 t3.medium      │
                          │ 2 vCPU / 4 GiB     │
-                         │ Nginx + PHP-FPM    │
+                         │ HAProxy + PHP-FPM  │
                          │ Laravel            │
                          └─────────┬──────────┘
                                    │
@@ -361,7 +361,30 @@ La principal limitación es que la aplicación mantiene un único servidor EC2 y
 
 El ALB permite, sin embargo, evolucionar posteriormente hacia múltiples instancias de aplicación sin modificar el punto de entrada público del sistema.
 
-Los resultados del stress test indican que la aplicación mantiene una correctitud funcional del 100 % bajo la carga evaluada, aunque presenta una degradación importante de latencia al aumentar la concurrencia. Por ello, la arquitectura propuesta deberá ser validada posteriormente con pruebas equivalentes sobre la infraestructura AWS para comprobar que el nuevo entorno mantiene un p95 aceptable dentro del escenario objetivo.
+Los resultados actualizados de k6 (`p95 = 22,76 s` y `0,59 req/s` con 15 VUs sobre `0,1 vCPU` monohilo y conexión TLS remota) confirman que el cuello de botella actual reside en la capacidad de cómputo del tier gratuito y en la latencia de red hacia la base externa, justificando el salto a EC2 multi-worker + RDS en VPC privada.
+
+---
+
+## 11. Análisis de Límites de Planes Gratuitos y Riesgos de Indisponibilidad no Modelados
+
+Al operar el sistema actual sobre capas gratuitas (**Render Free + Neon Free**) y contrastarlo contra el modelo de 500 usuarios en AWS, se identificaron **límites críticos de cuota y disponibilidad** que explican caídas del servicio en internet y que deben contemplarse explícitamente en el presupuesto:
+
+### 11.1. ¿Por qué puede caerse de Internet el sistema en el plan gratuito? (Render + Neon)
+
+| Proveedor | Límite del Plan Gratuito | Impacto Real en Disponibilidad |
+|---|---|---|
+| **Render Free** | **750 horas/mes por workspace** (compartidas entre todos los servicios) | Si coexisten 2 servicios web activos en la misma cuenta o si hay tráfico/pings frecuentes, la suma excede las 750 h mensuales y **Render suspende todos los servicios gratuitos (`503 Service Suspended`) hasta el 1.º del mes siguiente**. |
+| **Render Free** | **Suspensión por inactividad (15 min)** y **512 MB RAM / 0,1 vCPU** | El primer request tras inactividad sufre un *cold start* de ~25–50 s (riesgo de `502/504 Gateway Timeout`). Bajo picos de concurrencia, superar los 512 MB provoca un *OOM Kill* del contenedor. |
+| **Render Free** | **100 GB/mes de ancho de banda saliente (egress)** | Al agotarse la cuota mensual de transferencia, el servicio queda restringido o suspendido. |
+| **Neon Free** | **100 CU-hours/mes**, **5 GB/mes de egress** y **0,5 GiB de almacenamiento** | Si las pruebas de carga o el uso mensual agotan las horas de cómputo o el volumen de datos, Neon rechaza conexiones y la aplicación devuelve errores `500` de base de datos. |
+
+### 11.2. Límites equivalentes incorporados al análisis de AWS (500 usuarios)
+
+En producción sobre AWS no existe suspensión automática por horas gratuitas, pero el presupuesto inicial de **USD 65–80/mes** debe contemplar tres variables operativas que antes no estaban explicitadas:
+
+1. **Transferencia de datos saliente (Data Transfer Out / Egress):** AWS cobra aproximadamente **USD 0,09 por GB** transferido hacia Internet (luego de los primeros 100 GB mensuales gratuitos a nivel cuenta). Para 500 usuarios activos diarios con respuestas HTML/JSON ligeras (~10–20 GB/mes), el costo adicional se mantiene dentro del margen (~USD 0–2/mes), pero en escenarios de crecimiento (5.000+ usuarios) pasa a ser un ítem obligatorio.
+2. **Agotamiento de CPU Credits (`t3.medium` y `db.t4g.micro`):** Ambas instancias son *burstables* (baseline del 20 % por vCPU en `t3.medium`). Ante tráfico sostenido por encima del baseline, en modo *Standard* la CPU se estrangula severamente (reproduciendo degradaciones similares a las vistas en Render), y en modo *Unlimited* se generan cargos variables por crédito consumido.
+3. **Límite de conexiones simultáneas en RDS (`max_connections`):** Una instancia `db.t4g.micro` (1 GiB de RAM) soporta un máximo aproximado de **66 a 80 conexiones concurrentes** por defecto en MySQL/PostgreSQL. Superar ese tope con múltiples workers PHP-FPM sin pooling provoca rechazo de conexiones (`Too many connections`), requiriendo ajustar `pm.max_children` o incorporar **RDS Proxy** al escalar.
 
 ---
 
